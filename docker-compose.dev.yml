@@ -1,0 +1,8 @@
+proxy:
+  build: .
+  
+  environment:
+    - IMPORT_API_URL=https://{{username}}.cartodb.com/api/v1/imports
+  
+  ports:
+    - "3000:3000"
