@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mustache = require('mustache');
 var request = require('request');
+//var _ = require('underscore');
 
 var app = express();
 
@@ -26,21 +27,47 @@ app.use(function(req, res, next){
   next();
 });
 
+function getURL(username){
+  var template = process.env.IMPORT_API_URL || 'https://{{username}}.cartodb.com/api/v1/imports';
+  return mustache.to_html(template, {username: username})
+}
 app.post('/:account',function(req,res,next){
 
-  var template = process.env.IMPORT_API_URL || 'https://{{username}}.cartodb.com/api/v1/imports';
-  
   var account = req.params.account;
   if (!account){
     return next(new Error('Missing account parameter'));
   }
 
+
   var options = {
-    'url': mustache.to_html(template, {username: account}),
+    'url': getURL(account),
     'method': 'POST',
     'json': req.body
   };
   request.post(options).pipe(res);
+
+});
+
+app.get('/:account/:import_id',function(req,res,next){
+  
+  var account = req.params.account;
+  var import_id = req.params.import_id;
+  if (!account){
+    return next(new Error('Missing account parameter'));
+  }
+  if (!import_id){
+    return next(new Error('Missing import_id parameter'));
+  }
+
+  var query = [];
+
+  for (var i in req.query){
+    query.push(i + '=' +req.query[i]);
+  }
+
+  var url = getURL(account) + '/' + import_id +'?' + query.join('&');
+
+  request.get(url).pipe(res);
 
 });
 
