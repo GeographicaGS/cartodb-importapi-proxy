@@ -31,6 +31,11 @@ function getURL(username){
   var template = process.env.IMPORT_API_URL || 'https://{{username}}.cartodb.com/api/v1/imports';
   return mustache.to_html(template, {username: username})
 }
+
+app.get('/',function(req,res,next){
+  res.json({'date': new Date()});
+});
+
 app.post('/:account',function(req,res,next){
 
   var account = req.params.account;
@@ -49,7 +54,7 @@ app.post('/:account',function(req,res,next){
 });
 
 app.get('/:account/:import_id',function(req,res,next){
-  
+
   var account = req.params.account;
   var import_id = req.params.import_id;
   if (!account){
